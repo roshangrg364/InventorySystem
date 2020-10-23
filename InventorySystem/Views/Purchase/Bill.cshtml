@@ -1,0 +1,75 @@
+﻿@model InventorySystem.Models.PurchaseSummary
+@{
+    ViewData["Title"] = "Bill";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container ">
+    <h2 class="text-center">invoice</h2>
+
+    <div class="row">
+        <div class="col-md-6 text-left">
+            <!--Bill table here-->
+            <label class="label d-block">Name</label>
+            <label class="label d-block text-primary">@Model.supvalue.FullName</label>
+            <label class="label d-block">Address</label>
+            <label class="label d-block text-primary">@Model.supvalue.Address</label>
+           
+            
+        </div>
+        <div class="col-md-6 text-right">
+            <label class="label d-block">Contact</label>
+            <label class="label d-block text-primary">@Model.supvalue.Contact</label>
+            <label class="label d-block">Email</label>
+            <label class="label d-block text-primary">@Model.supvalue.Email</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product_id</th>
+                        <th>product Name</th>
+                        <th>quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var details in Model.details)
+                        {
+                            <tr>
+                                <td>@details.product_id</td>
+                                <td>@details.productvalue.product</td>
+                                <td>@details.qty</td>
+                                <td>@details.price</td>
+                                <td>@details.total</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12 text-right">
+    <div>
+        <label class="label d-block">Total Amount</label>
+        <label class="label d-block text-primary">@Model.total</label>
+        <label class="label d-block ">Discount</label>
+        <label class="label d-block text-primary">@Model.discount</label>
+        <label class="label d-block ">Vat</label>
+        <label class="label d-block text-primary">@Model.vat</label>
+        <label class="label d-block">Net Amount</label>
+        <label class="label d-block text-primary">@Model.net_total</label>
+
+    </div>
+</div>
+</div>
+    
+

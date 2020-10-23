@@ -1,0 +1,61 @@
+﻿@model Supplier
+@{
+    ViewData["Title"] = " Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var options = new List<SelectListItem>() {
+    new SelectListItem("enabled","enabled"),
+    new SelectListItem("disabled","disabled")
+    };
+}
+
+<div class="container">
+    <div class="row">
+        <form method="post" enctype="multipart/form-data">
+            @Html.HiddenFor(a => a.sup_id);
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.FullName)
+                @Html.TextBoxFor(a => a.FullName, new { @Class = "form-control", placeholder = "full name" })
+                @Html.ValidationMessageFor(a => a.FullName, "", new { @Class = "text-danger" })
+            </div>
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.Address)
+                @Html.TextBoxFor(a => a.Address, new { @Class = "form-control", placeholder = "Address" })
+                @Html.ValidationMessageFor(a => a.Address, "", new { @Class = "text-danger" })
+            </div>
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.Contact)
+                @Html.TextBoxFor(a => a.Contact, new { @Class = "form-control", placeholder = "Contact" })
+                @Html.ValidationMessageFor(a => a.Contact, "", new { @Class = "text-danger" })
+            </div>
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.Email)
+                @Html.TextBoxFor(a => a.Email, new { @Class = "form-control", placeholder = "Email" })
+                @Html.ValidationMessageFor(a => a.Email)
+            </div>
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.Status)
+                @Html.DropDownListFor(a => a.Status, options, new { @Class = "form-control", placeholder = "Status" })
+                @Html.ValidationMessageFor(a => a.FullName)
+            </div>
+            <div class="form-group">
+                @Html.DisplayNameFor(a => a.image)
+                @Html.TextBoxFor(a => a.file, new { @type = "file", @class = "form-control-file" })
+                @Html.ValidationMessageFor(a => a.image)
+            </div>
+            @Html.HiddenFor(a => a.image);
+            <br />
+            <button type="submit" class="btn btn-info btn-primary file edit-msg ">Submit</button>
+            <a asp-controller="supplier" asp-action="Index" class="btn btn-info btn-primary ">Back</a>
+
+        </form>
+
+
+    </div>
+
+    
+
+
+</div>
+
+

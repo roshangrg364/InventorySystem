@@ -1,0 +1,272 @@
+﻿@model PurchaseSummary
+@{
+    ViewData["Title"] = "Purchase";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+    <h2 class="text-center">Purchase Form</h2>
+    <div class="row">
+
+        <div class="col-md-4">
+            <form method="post">
+               
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.sup_id)
+                    @Html.DropDownListFor(a => a.sup_id, new SelectList(ViewBag.suppliers, "sup_id", "FullName"), new { @class = "form-control supplier" })
+                    @Html.ValidationMessageFor(a => a.sup_id, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    @Html.DropDownList("category", new SelectList(ViewBag.categories, "cat_id", "category"), new { @class = "form-control category-drop " })
+                </div>
+                <div class="form-group">
+                    <label>product</label>
+                    @Html.DropDownList("product", new SelectList(ViewBag.product, "p_id", "product"), new { @class = "form-control product-drop" })
+                    <div class="msg text-danger text-center"></div>
+                </div>
+                <!--hidden input to check the available quantity-->
+                <input type="text" name="qty" class="qtycheck form-control" style="display:none;"  />
+
+                <div class="form-group">
+                    <label>Qty</label>
+                    <input type="text" name="qty" class="qty form-control" />
+                    <div class="msg text-danger text-center"></div>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" name="price" class="price form-control" />
+                    <div class="msg text-danger text-center"></div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-sm btn-addtolist">AddToList</button>
+                    <div class="msg text-success text-center"></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-8">
+            <h2 class="text-center">purchase Details</h2>
+            <table class="table" style=" height:40vh;display:inline-block; overflow:scroll;width:100%;">
+                <thead>
+                    <tr>
+                        <th>Product Id</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+
+            </table>
+
+            <div>
+                <form method="post">
+                    <div class="form-group">
+                        @Html.DisplayNameFor(a => a.total)
+                        @Html.TextBoxFor(a => a.total, new { @class = "form-control-sm total-amount" })
+                        @Html.ValidationMessageFor(a => a.total)
+                    </div>
+                    <div class="form-group">
+                        @Html.DisplayNameFor(a => a.discount)
+                        @Html.TextBoxFor(a => a.discount, new { @class = "form-control-sm discount", placeholder = "0" })
+                        @Html.ValidationMessageFor(a => a.discount)
+                    </div>
+                    <div class="form-group">
+                        @Html.DisplayNameFor(a => a.vat)
+                        @Html.TextBoxFor(a => a.vat, new { @class = "form-control-sm vat ", placeholder = "0" })
+                        @Html.ValidationMessageFor(a => a.vat)
+                    </div>
+
+                    <div class="form-group">
+                        @Html.DisplayNameFor(a => a.net_total)
+                        @Html.TextBoxFor(a => a.net_total, new { @class = "form-control-sm net-total", placeholder = "0" })
+                        @Html.ValidationMessageFor(a => a.net_total)
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-save  btn-sm">Save</button>
+                        <a href="" class="btn btn-primary btn-bill btn-sm ">Bill</a>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+
+        $(document).ready(function () {
+            $('.category-drop').change(function () {
+                event.preventDefault();
+                var cat_id = $('.category-drop ').val();
+                var url = `/Purchase/GetProductList?id=${cat_id}`;
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data, status) {
+                        $('.product-drop > option').remove();
+
+                        for (var i = 0; i < data.length; i++) {
+                            $(".product-drop").append("<option value = '" + data[i].p_id + " '>" + data[i].pr + " </option>");
+
+                        }
+                        $('.product-drop').trigger("change");
+
+                    }
+                })
+
+            })
+
+
+
+            $('.product-drop').on('change', function (e) {
+                e.preventDefault();
+                var p_id = $('.product-drop').val();
+                var url = `/Purchase/GetPrice?id=${p_id}`;
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data, status) {
+
+                        $('.price').val(data.price);
+                        $('.qtycheck').val(data.qty);
+
+                    }
+                })
+            })
+
+
+            $('.btn-addtolist').on('click', function (e) {
+                e.preventDefault();
+                var qtycheck = $('.qtycheck').val();
+                var p_id = $('.product-drop').val();
+                var product = $('.product-drop option:selected').text();
+                var qty = $('.qty').val();
+                var price = $('.price').val();
+                var total = (qty * price);
+                if (parseFloat(qty) > parseFloat(qtycheck)) {
+                    alert("enter the quantity or your quantity is more than the stock");
+                    return;
+                }
+                $('.table tbody').append(
+                    `
+                                            <tr>
+                                                <td class="p_id">${p_id}</td>
+                                                <td class="productname">${product}</td>
+                                                <td class="quantity">${qty}</td>
+                                                <td class="priceamt">${price}</td>
+                                                <td class ="total">${total}</td>
+                                                <td> <a class="btn btn-info btn-remove btn-sm">Remove</a> </td>
+                                            </tr>       `
+                )
+                calculate();
+
+            })
+
+
+            $('body').delegate('.btn-remove', 'click', function (e) {
+                e.preventDefault();
+                $(this).closest('tr').remove();
+                calculate();
+
+            })
+
+            $('.btn-save').on('click', function (e) {
+                e.preventDefault();
+                
+                var url = `/Purchase/Add`;
+                var data = {
+                    sup_id: $('.supplier').val(),
+                    total_amount: $('.total-amount').val(),
+                    discount: $('.discount').val(),
+                    vat: $('.vat').val(),
+                    netamount: $('.net-total').val(),
+                    purchase_details: [],
+                };
+                
+                $('.table>tbody>tr').each(function () {
+                    data.purchase_details.push({
+                        product_id: $(this).find('.p_id').text(),
+                        qty: $(this).find('.quantity').text(),
+                        price: $(this).find('.priceamt').text(),
+                        total: $(this).find('.total').text(),
+                    })
+
+                });
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    dataType: 'json',
+                    data: data,
+                    success: function (data,status) {
+                        console.log(data.id);
+                      $('.btn-bill').attr("href", `/purchase/Bill?id=${data.id}`);
+                        alert("Saved successfully");
+                    }
+                })
+
+
+            })
+
+
+            function calculate() {
+                var total_amount = 0;
+                $('.table>tbody>tr').each(function () {
+                    var total = $(this).find('td').eq(4).text();
+
+                    total_amount = total_amount + parseFloat(total);
+
+                })
+
+                $('.total-amount').val(total_amount);
+            }
+
+
+            $('.discount').on('change', function () {
+
+                nettotal();
+            })
+
+
+            $('.vat').on('change', function () {
+
+                nettotal();
+            })
+
+            function nettotal() {
+                var net_total =0;
+                var total = $('.total-amount').val();
+                var discount = $('.discount').val();
+                var vat = $('.vat').val();
+                net_total = total - discount - vat;
+                $('.net-total').val(net_total);
+            }
+            //lu aaba run gar 
+            //$('body').delegate('.btn-bill','click', function () {
+            //    event.preventDefault();
+                
+            //    url = $('.btn-bill').attr('href');
+            //    console.log(url);
+            //        alert('success');
+            //    $.ajax({
+            //        url: url,
+            //        type: 'get',
+            //        success: function () {
+
+            //        }
+
+            //    })
+            //})
+        })
+
+
+
+    </script>
+}

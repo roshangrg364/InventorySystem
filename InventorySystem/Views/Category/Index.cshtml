@@ -1,0 +1,164 @@
+﻿@model Category
+@{
+    ViewData["Title"] = "Category";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="container-fluid">
+    <div class="text-center">
+        <h2>Category Info</h2>
+    </div>
+    <div class="row">
+
+        <div class="col-md-6">
+            <form method="Post" class="save-data">
+                @Html.HiddenFor(a => a.cat_id, new { @class = "cat_id" })
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.category)
+                    @Html.TextBoxFor(a => a.category, new { @class = "form-control category" })
+                    @Html.ValidationMessageFor(a => a.category, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-save btn-sm">Save</button>
+                    <button class="btn btn-primary btn-clear btn-sm">Clear</button>
+                    <button asp-controller="Product" asp-action="Index" class="btn btn-primary  btn-sm">back</button>
+                </div>
+            </form>
+
+            <div class="msg text-white bg-success text-center"></div>
+
+        </div>
+
+        <div class="col-md-6 ">
+            <table class="table" style=" height:80vh;display:inline-block; overflow:scroll;width:100%;">
+                <tr>
+                    <td>@Html.DisplayNameFor(a => a.cat_id)</td>
+                    <td>@Html.DisplayNameFor(a => a.category)</td>
+                </tr>
+
+                @{
+                    foreach (var category in (ViewBag.categories as List<Category>))
+                    {
+                        <tr>
+                            <td>@category.cat_id</td>
+                            <td>@category.category</td>
+                            <td>
+                                <a data-id="@category.cat_id" class="btn btn-info btn-sm btn-edit">Edit</a>
+                                <a data-id="@category.cat_id " class="btn btn-danger btn-sm btn-delete">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+
+
+    <script>
+
+        $(document).ready(function () {
+            $(".btn-save").click(function (e) {
+                $('.save-data').validate();
+                e.preventDefault();
+                var cat_data = {
+                    cat_id: $('.cat_id').val(),
+                    category: $('.category').val(),
+                    
+                }
+                
+                $.ajax({
+                    url: '/category/Add',
+                    type: 'post',
+                    dataType: 'json',
+                    data: cat_data,
+                    success: function (data, status) {
+                        if (status == "success") {
+                            if (cat_data.cat_id == 0) {
+                                var cat = $('.category').val();
+                                $(".table").append(
+                                    `<tr> <td>${data.cid}</td>
+                                        <td>${cat}</td>
+                                        <td>
+                                    <a data-id=${data.cid} class="btn btn-info btn-sm btn-edit">Edit</a>
+                                    <a data-id=${data.cid} class="btn btn-danger btn-sm btn-delete">Delete</a>
+                                     </td>
+                                    </tr>`)
+                                $('.msg').html(`added Category ${cat_data.category} succesfully`)
+                            }
+                            else {
+                                $('.table tr').each(function () {
+                                    var id = $(this).find('td').eq(0).text();
+
+                                    if (cat_data.cat_id == id) {
+                                        $(this).find('td').eq(1).text(cat_data.category);
+                                    }
+                                    $('.msg').html(`update category to ${cat_data.category}`);
+                                })
+                            }
+
+
+                        }
+                        else {
+                            $('.error-msg').html("Error while adding category");
+                        }
+                    },
+                    Error: function (jqXHR, textStatus, errorThrown) {
+                        $('.msg').html("hello this is error");
+                    }
+                });
+            })
+
+
+            $('body').delegate('.btn-edit','click',function () {
+                event.preventDefault();
+                var id = $(this).data('id');
+                var url = `/category/Edit?id=${id}`;
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    contentType: false,
+                   
+                    success: function (data, status) {
+                        $('.category').val(data.name);
+                        $('.cat_id').val(data.id);
+                    }
+
+                });
+
+            });
+
+            $('body').delegate('.btn-delete','click', function () {
+                event.preventDefault();
+                var id = $(this).data('id');
+                var url = `/category/Delete?id=${id}`;
+                var delete_btn = $(this);
+                $.ajax(
+                    {
+                        url: url,
+                        type: 'get',
+                        contentType: false,
+                        dataType: 'json',
+                        beforeSend: function () {
+                            return confirm("Do you want to Delete?")
+                        },
+                        success: function (data, status) {
+                            $(delete_btn).closest('tr').remove();
+                            $('.msg').html("deleted successfully");
+                        }
+                    });
+            })
+
+
+            $('.btn-clear').on('click', function () {
+                $('.category').val("");
+                $('.cat_id').val("");
+            });
+        });
+
+    </script>
+
+}

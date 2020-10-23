@@ -1,0 +1,259 @@
+﻿@model Salesummary
+@{
+    ViewData["Title"] = "sales";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{ 
+<style>
+    .my-custom-scrollbar {
+        position: relative;
+        height: 200px;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
+</style>
+}
+<div class="container">
+    <h1 class="text-center">Sales Summary</h1>
+    <div class="row">
+        <div class="col-md-5">
+            <form method="post">
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.cus_id)
+                    @Html.DropDownList("customer", new SelectList(ViewBag.customers, "cus_id", "FullName"), new { @class = "form-control customer " })
+                    @Html.ValidationMessageFor(a => a.cus_id)
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    @Html.DropDownList("Category", new SelectList(ViewBag.categories, "cat_id", "category"), new { @class = "form-control category-drop" })
+                </div>
+
+                <div class="form-group">
+                    <label>Product</label>
+                    @Html.DropDownList("Category", new SelectList(ViewBag.products, "p_id", "product"), new { @class = "form-control product-drop" })
+                </div>
+
+
+                <!--hidden box to check quantity-->
+                <input type="text" name="qty" class="qty form-control" style="display:none;" />
+
+
+                <div class="form-group">
+                    <label>Qty</label>
+                    <input type="text" name="qty" class="qtyavail form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" name="price" class="price form-control" />
+                </div>
+
+                <button class="btn btn-primary btn-sm btn-addtolist">AddToList</button>
+                <div class="msg text-success text-center"></div>
+            </form>
+        </div>
+
+        <div class="col-md-6 ">
+            <table class="table table-wrapper-scroll-y my-custom-scrollbar">
+                <thead>
+                    <tr>
+                        <td>Product Id</td>
+                        <td>Product </td>
+                        <td>Qty</td>
+                        <td>Price</td>
+                        <td>Total</td>
+                    </tr>
+                </thead>
+                <tbody>
+                   
+                </tbody>
+            </table>
+
+            <form method="post">
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.total_amount)
+                    @Html.TextBoxFor(a => a.total_amount, new { @class = "form-control total-amount" })
+                    @Html.ValidationMessageFor(a => a.total_amount)
+                </div>
+
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.discount)
+                    @Html.TextBoxFor(a => a.discount, new { @class = "form-control discount" })
+                    @Html.ValidationMessageFor(a => a.discount)
+                </div>
+
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.vat)
+                    @Html.TextBoxFor(a => a.vat, new { @class = "form-control vat" })
+                    @Html.ValidationMessageFor(a => a.vat)
+                </div>
+
+                <div class="form-group">
+                    @Html.DisplayNameFor(a => a.net_total)
+                    @Html.TextBoxFor(a => a.net_total, new { @class = "form-control net-amount" })
+                    @Html.ValidationMessageFor(a => a.net_total)
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-primary btn-sm btn-save">Save</button>
+                    <a href="" class="btn btn-primary btn-sm btn-bill">Bill</a>
+
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $('.category-drop').on('change', function (e) {
+                e.preventDefault();
+                var id = $('.category-drop').val();
+                var url = `/sales/GetProductList?id=${id}`;
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('.product-drop option').remove();
+                        for (var i = 0; i < data.length; i++) {
+
+                            $('.product-drop').append(`<option value=${data[i].p_id}>${data[i].product}</option>`)
+                        }
+
+                        $('.product-drop').trigger('change');
+                    }
+
+
+                })
+            })
+
+            $('.product-drop').on('change', function (e) {
+                e.preventDefault();
+                var id = $('.product-drop').val();
+                console.log(id);
+                var url = `/Sales/GetPriceList?id=${id}`;
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        $('.price').val(data.price);
+                        $('.qty').val(data.qty);
+                    }
+                })
+
+            })
+
+            $('.btn-addtolist').on('click', function (e) {
+                e.preventDefault();
+                var qty = $('.qty').val();
+                var qtyavail = $('.qtyavail').val();
+                var prdt_id = $('.product-drop').val();
+                var product = $('.product-drop option:selected').text();
+                var price = $('.price').val();
+                var total = (qtyavail * price);
+               
+                if (parseFloat(qtyavail) > parseFloat(qty)) {
+                    alert('you entered more quantity than the stock');
+                }
+
+                $('.table tbody').append(
+                    `<tr>
+                                <td class="p-id">${prdt_id}</td>
+                                <td class="productname">${product}</td>
+                                <td class="quantity">${qtyavail}</td>
+                                <td class="priceamt">${price}</td>
+                                <td class="total">${total}</td>
+                                <td class="remove"><a class="btn btn-primary btn-remove btn-sm">Remove</a></td>
+                                </tr>
+                                `
+                )
+                calculate();
+
+                })
+
+            $('body').delegate('.btn-remove', 'click', function () {
+                event.preventDefault();
+                $(this).closest('tr').remove();
+                calculate();
+            })
+            function calculate() {
+                var total_amt = 0;
+                $('.table tbody tr').each(function () {
+                    var total = $(this).find('td').eq(4).text();
+                    total_amt = total_amt + (+total);
+                })
+                $('.total-amount').val(total_amt);
+                
+            }
+
+            $('.discount').on('change', function () {
+                nettotal();
+            })
+
+            $('.vat').on('change', function () {
+                nettotal();
+            })
+
+
+            function nettotal() {
+                var net_total = 0;
+                var discount = $('.discount').val();
+                var vat = $('.vat').val();
+                var total = $('.total-amount').val();
+                net_total = total - discount - vat;
+
+                $('.net-amount').val(net_total);
+            }
+
+            $('.btn-save').on('click', function (e) {
+                e.preventDefault();
+                var data = {
+                    cus_id : $('.customer').val(),
+                 //   product_id : $('.product-drop').val(),
+                    total_amount : $('.total-amount').val(),
+                    discount: $('.discount').val(),
+                    vat: $('.vat').val(),
+                    net_total: $('.net-amount').val(),
+                    details:[],
+                }
+
+                $('.table tbody tr').each(function () {
+                    data.details.push(
+                        {
+                            product_id: $(this).find('.p-id').text(),
+                            qty: $(this).find('.quantity').text(),
+                            price: $(this).find('.priceamt').text(),
+                            total: $(this).find('.total').text()
+                        }
+                    )
+
+
+                })
+                $.ajax({
+                    url: "sales/add",
+                    type: 'post',
+                    dataType: 'json',
+                    data: data,
+                    success: function (data) {
+                        alert("success");
+                        $('.btn-bill').attr('href', `/Sales/Bill?id=${data.id}`);
+                    }
+                })
+              
+
+            })
+        })
+    </script>
+
+}
