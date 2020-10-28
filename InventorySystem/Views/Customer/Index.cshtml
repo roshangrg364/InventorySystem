@@ -1,9 +1,12 @@
 ﻿@model IEnumerable<InventorySystem.Models.Customer>
+@using X.PagedList.Mvc.Core; <!--import to get HTML Helper-->
+@using X.PagedList;
+@using X.PagedList.Mvc.Core.Common;
 @{
     ViewData["Title"] = "Customer";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@section styles{ 
+@section styles{
 
 
 
@@ -13,11 +16,11 @@
     <div class="text-xl-center">
         <h3>Customer Summary</h3>
     </div>
-
+    <div>Total Student : @Model.Count()</div>
     <div class="form-group">
-         <a asp-controller="Customer" asp-action="Create" class="btn btn-info btn-primary ">Add</a>
+        <a asp-controller="Customer" asp-action="Create" class="btn btn-info btn-primary ">Add</a>
     </div>
-   
+
 
 
     <div>
@@ -34,46 +37,62 @@
             @{
                 foreach (var customer in Model)
                 {
-                        <tr>
-                            <td>@customer.cus_id</td>
-                            <td>@customer.FullName</td>
-                            <td>@customer.Address</td>
-                            <td>@customer.Contact</td>
-                            <td>@customer.Email</td>
-                            <td>@customer.Status</td>
-                            <td><img src="~/images/@customer.image" style="height:4rem ;width:4rem;border-radius:100%" /></td>
-                            <td>
-                                @{
-                                    if (customer.Status == "enabled")
-                                    {
-                                        <a href="/customer/IsEnabledDisbled?id=@customer.cus_id" class="btn  btn-success btn-sm" >Enabled</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="/customer/IsEnabledDisbled?id=@customer.cus_id" class="btn  btn-danger btn-sm" >Disabled</a>
-                                    }
+                    <tr>
+                        <td>@customer.cus_id</td>
+                        <td>@customer.FullName</td>
+                        <td>@customer.Address</td>
+                        <td>@customer.Contact</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Status</td>
+                        <td><img src="~/images/@customer.image" style="height:4rem ;width:4rem;border-radius:100%" /></td>
+                        <td>
+                            @{
+                                if (customer.Status == "enabled")
+                                {
+                                    <a href="/customer/IsEnabledDisbled?id=@customer.cus_id" class="btn  btn-success btn-sm">Enabled</a>
                                 }
+                                else
+                                {
+                                    <a href="/customer/IsEnabledDisbled?id=@customer.cus_id" class="btn  btn-danger btn-sm">Disabled</a>
+                                }
+                            }
 
-                            </td>
-                            <td>
-                                <a href="/customer/Edit?id=@customer.cus_id" class="btn btn-info btn-secondary btn-sm">Edit </a>
-                                <a href="/customer/Delete?id=@customer.cus_id" class="btn btn-info btn-secondary delete-btn btn-sm">Delete</a>
-                            </td>
+                        </td>
+                        <td>
+                            <a href="/customer/Edit?id=@customer.cus_id" class="btn btn-info btn-secondary btn-sm">Edit </a>
+                            <a href="/customer/Delete?id=@customer.cus_id" class="btn btn-info btn-secondary delete-btn btn-sm">Delete</a>
+                        </td>
 
-                        </tr>
-                                    }
+                    </tr>
+                }
             }
         </table>
-
-        <script>
-            $('.delete-btn').on('click', function () {
-                event.preventDefault();
-                var result = confirm("Do you want to delete?");
-                if (result==true) {
-                    window.location.href = $(this).attr('href');
-                }
-            });
-        </script>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page = page }),
+        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+        {
+            DisplayItemSliceAndTotal = true,
+            ContainerDivClasses = new[] { "navigation" },
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+        })
 
     </div>
 </div>
+@section  scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            $('.delete-btn').on('click', function () {
+                event.preventDefault();
+                var result = confirm("Do you want to delete?");
+                if (result == true) {
+                    window.location.href = $(this).attr('href');
+                }
+            });
+
+            $('ul.pagination > li.disabled > a').addClass('page-link'); })
+      
+    </script>
+}
+

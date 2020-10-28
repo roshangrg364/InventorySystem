@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using InventorySystem.Models;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using X.PagedList;
 
 namespace InventorySystem.Controllers
 {
@@ -23,10 +24,12 @@ namespace InventorySystem.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? page)
         {
-            var cus = _context.customers.ToList();
-            return View(cus);
+            var pageNumber = page ?? 1; // if no page is specified, default to the first page (1)
+            int pageSize = 5; // Get 25 students for each requested page.
+            var onePageOfStudents = _context.customers.ToPagedList(pageNumber, pageSize);
+            return View(onePageOfStudents); // Send 25 students to the page.
         }
 
         public IActionResult Create()

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Roshan\\Desktop\\InventorySystem\\InventorySystem\\InventorySystem.csproj": {}
+    "C:\\Users\\Roshan\\Desktop\\InventorySystem Revised\\InventorySystem\\InventorySystem.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Roshan\\Desktop\\InventorySystem\\InventorySystem\\InventorySystem.csproj": {
+    "C:\\Users\\Roshan\\Desktop\\InventorySystem Revised\\InventorySystem\\InventorySystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Roshan\\Desktop\\InventorySystem\\InventorySystem\\InventorySystem.csproj",
+        "projectUniqueName": "C:\\Users\\Roshan\\Desktop\\InventorySystem Revised\\InventorySystem\\InventorySystem.csproj",
         "projectName": "InventorySystem",
-        "projectPath": "C:\\Users\\Roshan\\Desktop\\InventorySystem\\InventorySystem\\InventorySystem.csproj",
+        "projectPath": "C:\\Users\\Roshan\\Desktop\\InventorySystem Revised\\InventorySystem\\InventorySystem.csproj",
         "packagesPath": "C:\\Users\\Roshan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Roshan\\Desktop\\InventorySystem\\InventorySystem\\obj\\",
+        "outputPath": "C:\\Users\\Roshan\\Desktop\\InventorySystem Revised\\InventorySystem\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Roshan\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -83,6 +83,10 @@
             "System.Diagnostics.Tools": {
               "target": "Package",
               "version": "[4.3.0, )"
+            },
+            "X.PagedList.Mvc.Core": {
+              "target": "Package",
+              "version": "[8.0.7, )"
             },
             "jQuery.Validation": {
               "target": "Package",
