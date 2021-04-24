@@ -111,10 +111,8 @@
                     dataType: 'json',
                     success: function (data, status) {
                         $('.product-drop > option').remove();
-
                         for (var i = 0; i < data.length; i++) {
-                            $(".product-drop").append("<option value = '" + data[i].p_id + " '>" + data[i].pr + " </option>");
-
+                            $(".product-drop").append("<option value = '" + data[i].product_id + " '>" + data[i].product + " </option>");
                         }
                         $('.product-drop').trigger("change");
 
